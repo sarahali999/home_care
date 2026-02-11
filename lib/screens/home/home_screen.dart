@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../features/ambulance/screens/ambulance_screen.dart';
+import '../../features/consultations/screens/consultation_screen.dart';
+import '../../features/diagnostics/screens/diagnostics_screen.dart';
+import '../../features/medications/screens/medication_screen.dart';
+import '../../features/nursing/screens/nursing_screen.dart';
+import '../../features/supplies/screens/supplies_screen.dart';
+import '../appointments_screen.dart';
+import '../profile_screen.dart';
+import '../search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -12,99 +21,111 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      _buildHomeBody(),
+      const SearchScreen(),
+      const AppointmentsScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              floating: true,
-              backgroundColor: Colors.white,
-              elevation: 0.5,
-              surfaceTintColor: Colors.white,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: IndexedStack(
+          index: _currentIndex,
+          children: pages,
+        ),
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildHomeBody() {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          surfaceTintColor: Colors.white,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.notifications_outlined,
+                  color: Color(0xFF475569),
+                  size: 20,
+                ),
+              ),
+              Row(
                 children: [
+                  Text(
+                    'CareHome',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F766E),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          color: const Color(0xFF14B8A6).withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: const Icon(
-                      Icons.notifications_outlined,
-                      color: Color(0xFF475569),
-                      size: 20,
+                      Icons.health_and_safety,
+                      size: 18,
+                      color: Colors.white,
                     ),
-                  ),
-
-                  Row(
-                    children: [
-                      Text(
-                        'CareHome',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0F766E),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF0D9488), Color(0xFF14B8A6)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF14B8A6).withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.health_and_safety,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
-            ),
-
-            SliverPadding(
-              padding: const EdgeInsets.all(20),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildWelcomeCard(),
-                  const SizedBox(height: 28),
-                  _buildSectionHeader('خدماتنا المتخصصة'),
-                  const SizedBox(height: 16),
-                  _buildServicesGrid(),
-                  const SizedBox(height: 40),
-                ]),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+        SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildWelcomeCard(),
+              const SizedBox(height: 28),
+              _buildSectionHeader('خدماتنا المتخصصة'),
+              const SizedBox(height: 16),
+              _buildServicesGrid(),
+              const SizedBox(height: 40),
+            ]),
+          ),
+        ),
+      ],
     );
   }
 
@@ -326,6 +347,48 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: services.length,
       itemBuilder: (context, index) {
         final service = services[index];
+        final VoidCallback onTap = () {
+          switch (service.title) {
+            case 'طلب أدوية':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MedicationScreen()),
+              );
+              return;
+            case 'فحوصات منزلية':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DiagnosticsScreen()),
+              );
+              return;
+            case 'تمريض منزلي':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NursingScreen()),
+              );
+              return;
+            case 'نقل إسعافي':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AmbulanceScreen()),
+              );
+              return;
+            case 'استشارة طبية':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ConsultationScreen()),
+              );
+              return;
+            case 'مستلزمات طبية':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SuppliesScreen()),
+              );
+              return;
+            default:
+              return;
+          }
+        };
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -342,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () {},
+              onTap: onTap,
               splashColor: service.color.withOpacity(0.1),
               highlightColor: service.color.withOpacity(0.05),
               child: Padding(
